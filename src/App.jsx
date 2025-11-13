@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   FaHtml5,
   FaCss3Alt,
@@ -9,6 +9,7 @@ import {
   FaLinkedin,
   FaEnvelope,
 } from 'react-icons/fa'
+import { FiMenu, FiX } from 'react-icons/fi'
 
 const navLinks = [
   { href: '#home', label: 'Home' },
@@ -41,6 +42,7 @@ function App() {
     message: '',
   })
   const [isSubmitting, setSubmitting] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const handleScrollToContact = useCallback(() => {
     const target = document.querySelector('#contact')
@@ -67,7 +69,7 @@ function App() {
         formPayload.append('message', formData.message)
 
         const response = await fetch(
-          'https://formsubmit.co/ajax/nikhilkanaujia10@gmail.com',
+          'https://formsubmit.co/ajax/3ef92521740c6323fb16e54348121f95',
           {
             method: 'POST',
             body: formPayload,
@@ -106,6 +108,23 @@ function App() {
     [formData, isSubmitting],
   )
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMenuOpen(false)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [menuOpen])
+
   return (
     <div className="bg-surface text-gray-100 min-h-screen">
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-surface/70 backdrop-blur">
@@ -132,19 +151,42 @@ function App() {
               </motion.a>
             ))}
           </div>
-          <div className="flex gap-4 text-sm font-medium text-gray-300 md:hidden">
-            {navLinks.map((link) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                className="rounded-full border border-white/10 px-4 py-2 transition hover:border-accent hover:text-white"
-                whileTap={{ scale: 0.95 }}
-              >
-                {link.label}
-              </motion.a>
-            ))}
-          </div>
+          <motion.button
+            type="button"
+            aria-label="Toggle navigation menu"
+            aria-expanded={menuOpen}
+            className="md:hidden rounded-full border border-white/10 p-2 text-gray-200 transition hover:border-accent hover:text-white"
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setMenuOpen((prev) => !prev)}
+          >
+            {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+          </motion.button>
         </nav>
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              className="md:hidden border-t border-white/10 bg-surface/95 px-6 pb-6 pt-2 backdrop-blur"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+            >
+              <div className="flex flex-col gap-3 pt-4 text-sm font-medium text-gray-300">
+                {navLinks.map((link) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center transition hover:border-accent hover:text-white"
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.label}
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="mx-auto flex max-w-5xl flex-col gap-32 px-6 pt-28 pb-20 sm:pt-32">
